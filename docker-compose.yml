@@ -1,0 +1,48 @@
+version: '2.3'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: ${DOCKER_IMAGE:-pytortest:latest}
+    command: /app/run.sh
+    # command: ['ping', '-i', '10', 'localhost']
+    volumes:
+      - ${PWD:-.}/output:/app/output
+      - ${PWD:-.}/run.sh:/app/run.sh
+      - ${PWD:-.}/test.py:/app/test.py
+    # restart: 'unless-stopped'
+    restart: 'no'
+    environment:
+      PORT: 8008
+    # healthcheck:
+    #   test: ['CMD', '/app/health.sh']
+    #   interval: 30s
+    #   timeout: 3s
+
+  torproxy:
+    restart: unless-stopped
+    image: zuazo/alpine-tor:latest
+    command: ['ping', 'localhost']
+    # expose:
+    #   - '8118'
+    #   - '9050'
+    #   - '9051'
+    #   - '9053'
+    # ports:
+    #   - "8118:8118"
+    #   - "9050:9050"
+    #   - "9051:9051"
+    #   - "9053:9053"
+    network_mode: "service:app"
+    depends_on:
+      - app
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '9050']
+      interval: 30s
+      timeout: 3m
+
+# volumes:
+#   app_data:
+

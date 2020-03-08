@@ -1,0 +1,3 @@
+regex
+pyvirtualdisplay>=0.2.5
+git+https://github.com/GabrielM98/tor-browser-selenium.git
